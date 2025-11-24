@@ -1,0 +1,13 @@
+# Backup files
+*.backup
+
+# IDE files
+.vscode/
+
+# Python files (if not needed)
+*.py
+__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db
