@@ -1,4 +1,5 @@
 // Base Game Engine Class
+
 class GameEngine {
     constructor(image, level, callbacks) {
         this.image = image;
@@ -10,15 +11,10 @@ class GameEngine {
     }
 
     init(container) {
-        try {
-            this.container = container;
-            this.container.innerHTML = '';
-            this.setup();
-            this.startTimer();
-        } catch (e) {
-            console.error("Game Init Error:", e);
-            alert("The magic fizzled out! Please try again.");
-        }
+        this.container = container;
+        this.container.innerHTML = '';
+        this.setup();
+        this.startTimer();
     }
 
     setup() {
@@ -67,9 +63,5 @@ class GameEngine {
         if (this.container) {
             this.container.innerHTML = '';
         }
-    }
-
-    handleResize() {
-        // Override in child classes if needed
     }
 }

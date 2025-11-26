@@ -1,194 +1,160 @@
-// Application State
-const state = {
+// Main Application
+
+const app = {
     image: null,
     mode: 'sliding',
     level: 1,
     score: 0,
-    currentGame: null
+    game: null
 };
 
-// DOM Elements
-const els = {
-    upload: {
-        view: document.getElementById('landing-view'),
-        dropZone: document.getElementById('drop-zone'),
-        input: document.getElementById('file-input'),
-        error: document.getElementById('upload-error')
-    },
-    game: {
-        view: document.getElementById('game-view'),
-        container: document.getElementById('game-container'),
-        level: document.getElementById('level-num'),
-        score: document.getElementById('score-num'),
-        time: document.getElementById('time-num'),
-        modeSelect: document.getElementById('mode-select'),
-        btnHome: document.getElementById('btn-home'),
-        btnHelp: document.getElementById('btn-help')
-    },
-    modal: {
-        overlay: document.getElementById('modal-overlay'),
-        score: document.getElementById('modal-score'),
-        btnNext: document.getElementById('btn-next')
-    },
-    help: {
-        overlay: document.getElementById('help-overlay'),
-        content: document.getElementById('help-content'),
-        btnClose: document.getElementById('btn-close-help')
-    }
+// UI Elements
+const ui = {
+    uploadScreen: document.getElementById('upload-screen'),
+    gameScreen: document.getElementById('game-screen'),
+    uploadBox: document.getElementById('upload-box'),
+    fileInput: document.getElementById('file-input'),
+    errorMsg: document.getElementById('error-msg'),
+    level: document.getElementById('level'),
+    score: document.getElementById('score'),
+    time: document.getElementById('time'),
+    gameMode: document.getElementById('game-mode'),
+    gameContainer: document.getElementById('game-container'),
+    homeBtn: document.getElementById('home-btn'),
+    helpBtn: document.getElementById('help-btn'),
+    winModal: document.getElementById('win-modal'),
+    helpModal: document.getElementById('help-modal'),
+    modalScore: document.getElementById('modal-score'),
+    nextBtn: document.getElementById('next-btn'),
+    closeHelpBtn: document.getElementById('close-help-btn')
 };
 
-// View Management
-function switchView(viewName) {
-    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-    if (viewName === 'landing') {
-        els.upload.view.classList.add('active');
-    } else if (viewName === 'game') {
-        els.game.view.classList.add('active');
-    }
-}
-
-// File Handling
-function handleFile(file) {
-    if (!file || !file.type.startsWith('image/')) {
-        els.upload.error.classList.remove('hidden');
-        return;
-    }
-
-    els.upload.error.classList.add('hidden');
-    loadImage(file, (img) => {
-        if (!img) return;
-        state.image = img;
-        state.level = 1;
-        state.score = 0;
-        els.game.score.textContent = '0';
-        startGame();
-    });
-}
-
-// Game Initialization
-function startGame() {
-    if (!state.image) return;
-
-    // Clean up previous game
-    if (state.currentGame) {
-        state.currentGame.destroy();
-        state.currentGame = null;
-    }
-
-    // Callbacks for game events
-    const callbacks = {
-        onTimeUpdate: (time) => els.game.time.textContent = time,
-        onScoreUpdate: (score) => els.game.score.textContent = state.score + score,
-        onComplete: (roundScore) => {
-            state.score += roundScore;
-            els.game.score.textContent = state.score;
-            els.modal.score.textContent = state.score;
-            els.modal.overlay.classList.add('active');
-
-            // Confetti effect (if available)
-            if (window.confetti) {
-                window.confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
-        }
-    };
-
-    // Create game instance
-    if (state.mode === 'sliding') {
-        state.currentGame = new SlidingGame(state.image, state.level, callbacks);
-    } else if (state.mode === 'mosaic') {
-        state.currentGame = new MosaicGame(state.image, state.level, callbacks);
-    } else if (state.mode === 'spin') {
-        state.currentGame = new SpinGame(state.image, state.level, callbacks);
-    }
-
-    // Switch to game view and initialize
-    switchView('game');
-    requestAnimationFrame(() => {
-        if (state.currentGame) {
-            state.currentGame.init(els.game.container);
-            els.game.level.textContent = state.level;
-        }
-    });
-}
-
-// Event Listeners
-function initEvents() {
-    // Prevent default drag behaviors
-    window.addEventListener('dragover', e => e.preventDefault());
-    window.addEventListener('drop', e => e.preventDefault());
-
-    // Upload area
-    const dropZone = els.upload.dropZone;
-
-    dropZone.addEventListener('dragover', (e) => {
+// Initialize
+function init() {
+    // Upload handlers
+    ui.uploadBox.addEventListener('click', () => ui.fileInput.click());
+    ui.uploadBox.addEventListener('dragover', (e) => {
         e.preventDefault();
-        dropZone.classList.add('drag-over');
+        ui.uploadBox.style.borderColor = 'var(--accent)';
     });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('drag-over');
+    ui.uploadBox.addEventListener('dragleave', () => {
+        ui.uploadBox.style.borderColor = '';
     });
-
-    dropZone.addEventListener('drop', (e) => {
+    ui.uploadBox.addEventListener('drop', (e) => {
         e.preventDefault();
-        dropZone.classList.remove('drag-over');
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        ui.uploadBox.style.borderColor = '';
+        if (e.dataTransfer.files[0]) {
             handleFile(e.dataTransfer.files[0]);
         }
     });
-
-    els.upload.input.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
+    ui.fileInput.addEventListener('change', (e) => {
+        if (e.target.files[0]) {
             handleFile(e.target.files[0]);
         }
     });
 
     // Game controls
-    els.game.btnHome.addEventListener('click', () => {
-        if (confirm("Return to home? Progress will be lost.")) {
-            if (state.currentGame) {
-                state.currentGame.destroy();
-                state.currentGame = null;
-            }
-            switchView('landing');
-            state.score = 0;
-            state.level = 1;
-            els.game.score.textContent = '0';
+    ui.gameMode.addEventListener('change', (e) => {
+        app.mode = e.target.value;
+        startGame();
+    });
+    ui.homeBtn.addEventListener('click', () => {
+        if (confirm('Return home? Progress will be lost.')) {
+            goHome();
         }
     });
-
-    els.game.modeSelect.addEventListener('change', (e) => {
-        state.mode = e.target.value;
+    ui.helpBtn.addEventListener('click', () => {
+        ui.helpModal.classList.add('active');
+    });
+    ui.closeHelpBtn.addEventListener('click', () => {
+        ui.helpModal.classList.remove('active');
+    });
+    ui.nextBtn.addEventListener('click', () => {
+        ui.winModal.classList.remove('active');
+        app.level++;
         startGame();
     });
 
-    els.modal.btnNext.addEventListener('click', () => {
-        els.modal.overlay.classList.remove('active');
-        state.level++;
+    // Prevent default drag on window
+    window.addEventListener('dragover', e => e.preventDefault());
+    window.addEventListener('drop', e => e.preventDefault());
+}
+
+function handleFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+        ui.errorMsg.classList.remove('hidden');
+        return;
+    }
+
+    ui.errorMsg.classList.add('hidden');
+    loadImage(file, (img) => {
+        if (!img) {
+            ui.errorMsg.classList.remove('hidden');
+            return;
+        }
+        app.image = img;
+        app.level = 1;
+        app.score = 0;
+        ui.score.textContent = '0';
+        showGameScreen();
         startGame();
     });
+}
 
-    // Help
-    els.game.btnHelp.addEventListener('click', () => {
-        els.help.overlay.classList.add('active');
-    });
+function showGameScreen() {
+    ui.uploadScreen.classList.remove('active');
+    ui.gameScreen.classList.add('active');
+}
 
-    els.help.btnClose.addEventListener('click', () => {
-        els.help.overlay.classList.remove('active');
-    });
+function goHome() {
+    if (app.game) {
+        app.game.destroy();
+        app.game = null;
+    }
+    app.score = 0;
+    app.level = 1;
+    ui.score.textContent = '0';
+    ui.gameScreen.classList.remove('active');
+    ui.uploadScreen.classList.add('active');
+}
 
-    // Resize handler
-    window.addEventListener('resize', () => {
-        if (state.currentGame && state.currentGame.handleResize) {
-            state.currentGame.handleResize();
+function startGame() {
+    if (!app.image) return;
+
+    // Cleanup previous game
+    if (app.game) {
+        app.game.destroy();
+        app.game = null;
+    }
+
+    // Game callbacks
+    const callbacks = {
+        onTimeUpdate: (time) => ui.time.textContent = time,
+        onComplete: (roundScore) => {
+            app.score += roundScore;
+            ui.score.textContent = app.score;
+            ui.modalScore.textContent = app.score;
+            ui.winModal.classList.add('active');
+        }
+    };
+
+    // Create game
+    if (app.mode === 'sliding') {
+        app.game = new SlidingGame(app.image, app.level, callbacks);
+    } else if (app.mode === 'mosaic') {
+        app.game = new MosaicGame(app.image, app.level, callbacks);
+    } else if (app.mode === 'spin') {
+        app.game = new SpinGame(app.image, app.level, callbacks);
+    }
+
+    // Initialize
+    ui.level.textContent = app.level;
+    requestAnimationFrame(() => {
+        if (app.game) {
+            app.game.init(ui.gameContainer);
         }
     });
 }
 
-// Initialize app
-initEvents();
-switchView('landing');
+// Start app
+init();

@@ -1,12 +1,11 @@
-// Mosaic Swap Puzzle Game
+// Mosaic Swap Puzzle - Square board!
+
 class MosaicGame extends GameEngine {
     constructor(image, level, callbacks) {
         super(image, level, callbacks);
         this.gridSize = Math.min(3 + level, 8);
         this.tiles = [];
-        this.boardEl = null;
-        this.selectedTile = null;
-        this.layout = {};
+        this.selected = null;
     }
 
     setup() {
@@ -15,125 +14,112 @@ class MosaicGame extends GameEngine {
     }
 
     createBoard() {
+        // SIMPLE: Square board
         const containerRect = this.container.getBoundingClientRect();
-        const containerW = containerRect.width - 20;
-        const containerH = containerRect.height - 20;
-
-        const aspectRatio = (this.image.width && this.image.height)
-            ? this.image.width / this.image.height
-            : 1;
-        let boardW = Math.min(containerW, containerH);
-        let boardH = boardW / aspectRatio;
-
-        if (boardH > containerH) {
-            boardH = containerH;
-            boardW = boardH * aspectRatio;
-        }
+        const size = Math.min(containerRect.width, containerRect.height) * 0.9;
 
         const board = document.createElement('div');
-        board.className = 'mosaic-board';
-        board.style.width = `${boardW}px`;
-        board.style.height = `${boardH}px`;
+        board.className = 'game-board';
+        board.style.width = size + 'px';
+        board.style.height = size + 'px';
         board.style.gridTemplateColumns = `repeat(${this.gridSize}, 1fr)`;
         board.style.gridTemplateRows = `repeat(${this.gridSize}, 1fr)`;
 
         this.container.appendChild(board);
-        this.boardEl = board;
-        this.layout = { boardW, boardH };
+        this.board = board;
     }
 
     createTiles() {
         const positions = [];
+        let id = 0;
+
         for (let y = 0; y < this.gridSize; y++) {
             for (let x = 0; x < this.gridSize; x++) {
-                positions.push({ gx: x, gy: y });
+                positions.push({ x, y, id: id++ });
             }
         }
 
         const shuffled = shuffleArray(positions);
 
         for (let i = 0; i < positions.length; i++) {
-            const { gx, gy } = positions[i];
-            const { gx: currentX, gy: currentY } = shuffled[i];
+            const correct = positions[i];
+            const current = shuffled[i];
 
             const canvas = document.createElement('canvas');
+            const tileSize = this.image.width / this.gridSize;
+
             drawImagePortion(
                 canvas, this.image,
-                gx * (this.image.width / this.gridSize),
-                gy * (this.image.height / this.gridSize),
-                this.image.width / this.gridSize,
-                this.image.height / this.gridSize
+                correct.x * tileSize, correct.y * tileSize,
+                tileSize, tileSize
             );
 
             const tile = document.createElement('div');
-            tile.className = 'mosaic-tile';
-            tile.dataset.id = i;
+            tile.className = 'tile';
             tile.appendChild(canvas);
 
-            const hint = document.createElement('div');
-            hint.className = 'tile-hint';
-            hint.textContent = i + 1;
-            tile.appendChild(hint);
+            const number = document.createElement('div');
+            number.className = 'tile-number';
+            number.textContent = correct.id + 1;
+            tile.appendChild(number);
 
-            tile.style.gridColumn = currentX + 1;
-            tile.style.gridRow = currentY + 1;
+            tile.style.gridColumn = current.x + 1;
+            tile.style.gridRow = current.y + 1;
+            tile.onclick = () => this.handleClick(i);
 
-            this.boardEl.appendChild(tile);
+            this.board.appendChild(tile);
 
             this.tiles.push({
-                el: tile,
-                gx,
-                gy,
-                currentX,
-                currentY
+                element: tile,
+                correctX: correct.x,
+                correctY: correct.y,
+                currentX: current.x,
+                currentY: current.y,
+                id: i
             });
-
-            tile.addEventListener('click', () => this.handleTileClick(tile));
         }
     }
 
-    handleTileClick(tileEl) {
-        const tile = this.tiles.find(t => t.el === tileEl);
-        if (!tile) return;
+    handleClick(id) {
+        const tile = this.tiles[id];
 
-        if (!this.selectedTile) {
-            this.selectedTile = tile;
-            tile.el.classList.add('selected');
+        if (!this.selected) {
+            this.selected = tile;
+            tile.element.classList.add('selected');
         } else {
-            if (this.selectedTile === tile) {
-                tile.el.classList.remove('selected');
-                this.selectedTile = null;
+            if (this.selected === tile) {
+                tile.element.classList.remove('selected');
+                this.selected = null;
             } else {
-                this.swapTiles(this.selectedTile, tile);
-                this.selectedTile.el.classList.remove('selected');
-                this.selectedTile = null;
+                this.swap(this.selected, tile);
+                this.selected.element.classList.remove('selected');
+                this.selected = null;
                 this.checkWin();
             }
         }
     }
 
-    swapTiles(tile1, tile2) {
+    swap(tile1, tile2) {
         [tile1.currentX, tile2.currentX] = [tile2.currentX, tile1.currentX];
         [tile1.currentY, tile2.currentY] = [tile2.currentY, tile1.currentY];
 
-        tile1.el.style.gridColumn = tile1.currentX + 1;
-        tile1.el.style.gridRow = tile1.currentY + 1;
-        tile2.el.style.gridColumn = tile2.currentX + 1;
-        tile2.el.style.gridRow = tile2.currentY + 1;
+        tile1.element.style.gridColumn = tile1.currentX + 1;
+        tile1.element.style.gridRow = tile1.currentY + 1;
+        tile2.element.style.gridColumn = tile2.currentX + 1;
+        tile2.element.style.gridRow = tile2.currentY + 1;
     }
 
     checkWin() {
-        const allCorrect = this.tiles.every(t => t.currentX === t.gx && t.currentY === t.gy);
+        const allCorrect = this.tiles.every(t =>
+            t.currentX === t.correctX && t.currentY === t.correctY
+        );
+
         if (allCorrect) {
-            this.tiles.forEach(t => t.el.classList.add('correct'));
-            this.onWin();
+            setTimeout(() => this.onWin(), 300);
         }
     }
 
-    handleResize() {
-        this.container.innerHTML = '';
-        this.tiles = [];
-        this.selectedTile = null;
-        this.setup();
+    destroy() {
+        super.destroy();
     }
 }

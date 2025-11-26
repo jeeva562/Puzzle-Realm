@@ -1,11 +1,10 @@
-// Spin Rotation Puzzle Game
+// Spin Rotation Puzzle - Square board!
+
 class SpinGame extends GameEngine {
     constructor(image, level, callbacks) {
         super(image, level, callbacks);
         this.gridSize = Math.min(3 + level, 6);
         this.tiles = [];
-        this.boardEl = null;
-        this.layout = {};
     }
 
     setup() {
@@ -14,90 +13,67 @@ class SpinGame extends GameEngine {
     }
 
     createBoard() {
+        // SIMPLE: Square board
         const containerRect = this.container.getBoundingClientRect();
-        const containerW = containerRect.width - 20;
-        const containerH = containerRect.height - 20;
-
-        const aspectRatio = (this.image.width && this.image.height)
-            ? this.image.width / this.image.height
-            : 1;
-        let boardW = Math.min(containerW, containerH);
-        let boardH = boardW / aspectRatio;
-
-        if (boardH > containerH) {
-            boardH = containerH;
-            boardW = boardH * aspectRatio;
-        }
+        const size = Math.min(containerRect.width, containerRect.height) * 0.9;
 
         const board = document.createElement('div');
-        board.className = 'spin-board';
-        board.style.width = `${boardW}px`;
-        board.style.height = `${boardH}px`;
+        board.className = 'game-board';
+        board.style.width = size + 'px';
+        board.style.height = size + 'px';
         board.style.gridTemplateColumns = `repeat(${this.gridSize}, 1fr)`;
         board.style.gridTemplateRows = `repeat(${this.gridSize}, 1fr)`;
 
         this.container.appendChild(board);
-        this.boardEl = board;
-        this.layout = { boardW, boardH };
+        this.board = board;
     }
 
     createTiles() {
         for (let y = 0; y < this.gridSize; y++) {
             for (let x = 0; x < this.gridSize; x++) {
                 const canvas = document.createElement('canvas');
+                const tileSize = this.image.width / this.gridSize;
+
                 drawImagePortion(
                     canvas, this.image,
-                    x * (this.image.width / this.gridSize),
-                    y * (this.image.height / this.gridSize),
-                    this.image.width / this.gridSize,
-                    this.image.height / this.gridSize
+                    x * tileSize, y * tileSize,
+                    tileSize, tileSize
                 );
 
                 const tile = document.createElement('div');
-                tile.className = 'spin-tile';
+                tile.className = 'tile';
                 tile.appendChild(canvas);
-
                 tile.style.gridColumn = x + 1;
                 tile.style.gridRow = y + 1;
-
-                this.boardEl.appendChild(tile);
 
                 const rotation = [0, 90, 180, 270][Math.floor(Math.random() * 4)];
                 canvas.style.transform = `rotate(${rotation}deg)`;
 
-                this.tiles.push({
-                    el: tile,
-                    canvas,
-                    rotation,
-                    x,
-                    y
-                });
+                tile.onclick = () => this.rotateTile(tile);
 
-                tile.addEventListener('click', () => this.rotateTile(tile));
+                this.board.appendChild(tile);
+                this.tiles.push({ element: tile, canvas, rotation });
             }
         }
     }
 
     rotateTile(tileEl) {
-        const tile = this.tiles.find(t => t.el === tileEl);
+        const tile = this.tiles.find(t => t.element === tileEl);
         if (!tile) return;
 
         tile.rotation = (tile.rotation + 90) % 360;
         tile.canvas.style.transform = `rotate(${tile.rotation}deg)`;
-
         this.checkWin();
     }
 
     checkWin() {
         const allCorrect = this.tiles.every(t => t.rotation === 0);
         if (allCorrect) {
-            this.onWin();
+            setTimeout(() => this.onWin(), 300);
         }
     }
 
-    handleResize() {
-        this.container.innerHTML = '';
-        this.tiles = [];
-        this.setup();
+    destroy() {
+        super.destroy();
     }
 }

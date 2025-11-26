@@ -4,52 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Puzzle Realm - Play stunning sliding, mosaic, and spin puzzles">
+    <meta name="description" content="Puzzle Realm - Play sliding, mosaic, and spin puzzles">
     <title>Puzzle Realm</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
     <div id="app">
-        <!-- Landing View -->
-        <section id="landing-view" class="view-section active">
+        <!-- Upload Screen -->
+        <section id="upload-screen" class="screen active">
             <div class="card">
-                <h1 class="magic-text">🧩 Puzzle Realm</h1>
-                <h2>Choose Your Image</h2>
-                <div class="upload-area" id="drop-zone">
+                <h1 class="title">🧩 Puzzle Realm</h1>
+                <p class="subtitle">Choose Your Image</p>
+                <div class="upload-box" id="upload-box">
                     <div class="upload-icon">🖼️</div>
-                    <p>Click or drag an image here</p>
+                    <p>Click or drag image here</p>
                     <input type="file" id="file-input" accept="image/*">
                 </div>
-                <p class="error-msg hidden" id="upload-error">Please upload a valid image file</p>
+                <p class="error hidden" id="error-msg">Please upload a valid image</p>
             </div>
         </section>
 
-        <!-- Game View -->
-        <section id="game-view" class="view-section">
+        <!-- Game Screen -->
+        <section id="game-screen" class="screen">
             <div class="game-header">
-                <div class="stats-bar">
-                    <div class="stat-item">
-                        <span class="stat-label">Level</span>
-                        <span class="stat-value" id="level-num">1</span>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="label">Level</span>
+                        <span class="value" id="level">1</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Score</span>
-                        <span class="stat-value" id="score-num">0</span>
+                    <div class="stat">
+                        <span class="label">Score</span>
+                        <span class="value" id="score">0</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Time</span>
-                        <span class="stat-value" id="time-num">00:00</span>
+                    <div class="stat">
+                        <span class="label">Time</span>
+                        <span class="value" id="time">00:00</span>
                     </div>
                 </div>
-                <div class="controls-bar">
-                    <select id="mode-select">
+                <div class="controls">
+                    <select id="game-mode" class="mode-select">
                         <option value="sliding">Sliding Puzzle</option>
                         <option value="mosaic">Mosaic Swap</option>
                         <option value="spin">Spin Puzzle</option>
                     </select>
-                    <button class="btn btn-secondary" id="btn-help">📖 Grimoire</button>
-                    <button class="btn btn-secondary" id="btn-home">🏠 Home</button>
+                    <button id="help-btn" class="btn btn-secondary">📖 Help</button>
+                    <button id="home-btn" class="btn btn-secondary">🏠 Home</button>
                 </div>
             </div>
             <div id="game-container"></div>
@@ -57,37 +57,32 @@
     </div>
 
     <!-- Win Modal -->
-    <div id="modal-overlay">
-        <div class="card center-content">
+    <div id="win-modal" class="modal">
+        <div class="modal-content">
             <h2>🎉 Level Complete!</h2>
-            <div class="score-display" id="modal-score">0</div>
-            <button class="btn" id="btn-next">Next Level</button>
+            <div class="score-big" id="modal-score">0</div>
+            <button id="next-btn" class="btn">Next Level</button>
         </div>
     </div>
 
     <!-- Help Modal -->
-    <div id="help-overlay">
-        <div class="card help-card">
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
             <h2>📖 How to Play</h2>
-            <div class="help-content" id="help-content">
+            <div class="help-text">
                 <h3>Sliding Puzzle</h3>
-                <p>Click tiles adjacent to the empty space to slide them. Rearrange all tiles to restore the original
-                    image!</p>
+                <p>Click tiles next to the empty space to slide them. Arrange all tiles to complete the image.</p>
 
                 <h3>Mosaic Swap</h3>
-                <p>Click two tiles to swap their positions. Use the numbers as hints to solve the puzzle!</p>
+                <p>Click two tiles to swap them. Use the numbers as hints to solve the puzzle.</p>
 
                 <h3>Spin Puzzle</h3>
-                <p>Click tiles to rotate them 90 degrees. Align all tiles correctly to win!</p>
+                <p>Click tiles to rotate them. Align all tiles correctly to win.</p>
             </div>
-            <button class="btn" id="btn-close-help">Close</button>
+            <button id="close-help-btn" class="btn">Close</button>
         </div>
     </div>
 
-    <!-- Sparkles Container -->
-    <div id="sparkles-container"></div>
-
-    <!-- Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/game-engine.js"></script>
     <script src="js/sliding.js"></script>
