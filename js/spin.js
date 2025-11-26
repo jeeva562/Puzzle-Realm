@@ -18,7 +18,9 @@ class SpinGame extends GameEngine {
         const containerW = containerRect.width - 20;
         const containerH = containerRect.height - 20;
 
-        const aspectRatio = this.image.width / this.image.height;
+        const aspectRatio = (this.image.width && this.image.height)
+            ? this.image.width / this.image.height
+            : 1;
         let boardW = Math.min(containerW, containerH);
         let boardH = boardW / aspectRatio;
 

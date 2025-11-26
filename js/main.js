@@ -1,7 +1,7 @@
 // Application State
 const state = {
     image: null,
-    mode: 'jigsaw',
+    mode: 'sliding',
     level: 1,
     score: 0,
     currentGame: null
@@ -97,8 +97,8 @@ function startGame() {
     };
 
     // Create game instance
-    if (state.mode === 'jigsaw') {
-        state.currentGame = new JigsawGame(state.image, state.level, callbacks);
+    if (state.mode === 'sliding') {
+        state.currentGame = new SlidingGame(state.image, state.level, callbacks);
     } else if (state.mode === 'mosaic') {
         state.currentGame = new MosaicGame(state.image, state.level, callbacks);
     } else if (state.mode === 'spin') {

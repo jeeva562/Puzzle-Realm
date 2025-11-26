@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Puzzle Realm - Play stunning jigsaw, mosaic, and spin puzzles">
+    <meta name="description" content="Puzzle Realm - Play stunning sliding, mosaic, and spin puzzles">
     <title>Puzzle Realm</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="controls-bar">
                     <select id="mode-select">
-                        <option value="jigsaw">Classic Jigsaw</option>
+                        <option value="sliding">Sliding Puzzle</option>
                         <option value="mosaic">Mosaic Swap</option>
                         <option value="spin">Spin Puzzle</option>
                     </select>
@@ -70,9 +70,9 @@
         <div class="card help-card">
             <h2>📖 How to Play</h2>
             <div class="help-content" id="help-content">
-                <h3>Jigsaw Puzzle</h3>
-                <p>Drag pieces from the bench at the bottom onto the board. Pieces will snap into place when positioned
-                    correctly.</p>
+                <h3>Sliding Puzzle</h3>
+                <p>Click tiles adjacent to the empty space to slide them. Rearrange all tiles to restore the original
+                    image!</p>
 
                 <h3>Mosaic Swap</h3>
                 <p>Click two tiles to swap their positions. Use the numbers as hints to solve the puzzle!</p>
@@ -90,7 +90,7 @@
     <!-- Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/game-engine.js"></script>
-    <script src="js/jigsaw.js"></script>
+    <script src="js/sliding.js"></script>
     <script src="js/mosaic.js"></script>
     <script src="js/spin.js"></script>
     <script src="js/main.js"></script>

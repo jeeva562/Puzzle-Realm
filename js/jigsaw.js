@@ -11,6 +11,7 @@ class JigsawGame extends GameEngine {
         this.draggedPiece = null;
         this.showPreview = false;
         this.layout = {};
+        this.eventListeners = []; // Store document level event listeners for cleanup
     }
 
     setup() {
@@ -273,12 +274,23 @@ class JigsawGame extends GameEngine {
             }
         });
 
+        // Add piece-specific listeners
         pieceEl.addEventListener('mousedown', handleStart);
         pieceEl.addEventListener('touchstart', handleStart);
+
+        // Add document-level listeners and store references for cleanup
         document.addEventListener('mousemove', handleMove);
         document.addEventListener('touchmove', handleMove, { passive: false });
         document.addEventListener('mouseup', handleEnd);
         document.addEventListener('touchend', handleEnd);
+
+        // Store references for cleanup to prevent memory leaks
+        this.eventListeners.push(
+            { type: 'mousemove', handler: handleMove },
+            { type: 'touchmove', handler: handleMove, options: { passive: false } },
+            { type: 'mouseup', handler: handleEnd },
+            { type: 'touchend', handler: handleEnd }
+        );
     }
 
     updateProgress() {
@@ -295,6 +307,9 @@ class JigsawGame extends GameEngine {
     }
 
     handleResize() {
+        // Clean up before rebuild
+        this.cleanupEventListeners();
+
         // Store piece states
         const states = this.pieces.map(p => ({ id: p.id, placed: p.placed }));
 
@@ -322,5 +337,18 @@ class JigsawGame extends GameEngine {
         if (this.showPreview && this.previewEl) {
             this.previewEl.style.opacity = '0.3';
         }
+    }
+
+    // Clean up event listeners to prevent memory leaks
+    cleanupEventListeners() {
+        this.eventListeners.forEach(({ type, handler, options }) => {
+            document.removeEventListener(type, handler, options);
+        });
+        this.eventListeners = [];
+    }
+
+    destroy() {
+        super.destroy();
+        this.cleanupEventListeners();
     }
 }

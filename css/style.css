@@ -285,40 +285,20 @@ option {
     pointer-events: none;
 }
 
- .mosaic-board,
- .spin-board {
-     display: grid;
-     position: relative;
-     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-     background: rgba(255, 255, 255, 0.05);
-     margin: 0 auto;
- }
+.mosaic-board,
+.spin-board {
+    display: grid;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.05);
+    margin: 0 auto;
+}
 
- .jigsaw-board {
-     position: relative;
-     margin: 0 auto;
-     background: rgba(255, 255, 255, 0.05);
-     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-     border-radius: 8px;
-     overflow: hidden;
-     touch-action: none;
- }
-
- .jigsaw-bench {
-     margin-top: 10px;
-     width: 100%;
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-     gap: 6px;
-     padding: 6px;
-     max-height: 35%;
-     overflow-y: auto;
- }
-
-.mosaic-tile,
-.spin-tile {
-    box-sizing: border-box;
-    cursor: pointer;
+.jigsaw-board {
+    position: relative;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     transition: transform 0.2s;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     position: relative;
